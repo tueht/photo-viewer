@@ -1,6 +1,13 @@
 //  Created by react-native-create-bridge
 #import "MerryPhotoView.h"
 #import <Foundation/Foundation.h>
+#import <SDWebImage/SDWebImageManager.h>
+#if __has_include("RCTUtils.h")
+#import "RCTUtils.h"
+#else
+#import <React/RCTUtils.h>
+#endif
+
 
 @implementation MerryPhotoView {
 
@@ -146,6 +153,12 @@
     });
 }
 
+- (BOOL)isWebURL:(NSURL *)requestURL
+{
+  NSString *scheme = [requestURL scheme];
+  return [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"];
+}
+
 /**
  Update Photo
  @param photosViewController <#photosViewController description#>
@@ -158,26 +171,42 @@
     MerryPhoto* currentPhoto = [self.dataSource.photos objectAtIndex:current];
     MerryPhotoData* d = self.reactPhotos[current];
 
-    [_bridge.imageLoader loadImageWithURLRequest:d.source.request
-        size:d.source.size
-        scale:d.source.scale
-        clipped:YES
-        resizeMode:RCTResizeModeStretch
-        progressBlock:^(int64_t progress, int64_t total) {
-            //            NSLog(@"%lld %lld", progress, total);
-        }
-        partialLoadBlock:nil
-        completionBlock:^(NSError* error, UIImage* image) {
+    if (RCTIsLocalAssetURL(d.source.request.URL) || ![self isWebURL: d.source.request.URL]) {
+        [_bridge.imageLoader loadImageWithURLRequest:d.source.request
+            size:d.source.size
+            scale:d.source.scale
+            clipped:YES
+            resizeMode:RCTResizeModeStretch
+            progressBlock:^(int64_t progress, int64_t total) {
+                //            NSLog(@"%lld %lld", progress, total);
+            }
+            partialLoadBlock:nil
+            completionBlock:^(NSError* error, UIImage* image) {
+                if (image) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+
+                        currentPhoto.image = image;
+
+                        [photosViewController updatePhoto:currentPhoto];
+
+                    });
+                }
+            }];
+    } else {
+        [SDWebImageManager.sharedManager loadImageWithURL:d.source.request.URL options:SDWebImageProgressiveLoad context:nil progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * __unused _Nullable targetURL) {
+            //        if (progressHandler) {
+            //            progressHandler(receivedSize, expectedSize);
+            //        }
+        } completed:^(UIImage * _Nullable image, NSData * __unused _Nullable data, NSError * _Nullable error, SDImageCacheType __unused cacheType, BOOL finished, NSURL * __unused _Nullable imgURL) {
             if (image) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-
                     currentPhoto.image = image;
-
                     [photosViewController updatePhoto:currentPhoto];
 
                 });
             }
         }];
+    }
 }
 
 #pragma mark - NYTPhotosViewControllerDelegate
