@@ -56,9 +56,7 @@ class MerryPhotoView extends React.Component {
 }
 MerryPhotoView.propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape({
-        source: Platform.OS === "ios"
-            ? ImageSourcePropType
-            : PropTypes.oneOfType([
+        source: PropTypes.oneOfType([
                 PropTypes.shape({
                     uri: PropTypes.string,
                     headers: PropTypes.objectOf(PropTypes.string)
