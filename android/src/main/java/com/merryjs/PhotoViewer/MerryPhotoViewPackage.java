@@ -15,7 +15,7 @@ import java.util.List;
 public class MerryPhotoViewPackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Collections.emptyList();
+        return Arrays.<NativeModule>asList(new PhotoViewChecker(reactContext));
     }
 
     public List<Class<? extends JavaScriptModule>> createJSModules() {
