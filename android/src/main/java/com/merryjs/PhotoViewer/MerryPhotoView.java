@@ -9,11 +9,10 @@ import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
-import com.stfalcon.frescoimageviewer.ImageViewer;
 import com.facebook.react.views.imagehelper.ImageSource;
+import com.stfalcon.frescoimageviewer.ImageViewer;
 
 /**
  * Created by bang on 07/08/2017.
@@ -82,6 +81,9 @@ public class MerryPhotoView extends View {
     protected boolean hideShareButton;
 
     protected boolean hideCloseButton;
+    protected boolean handleShareDefault;
+
+    private int currentIndex = 0;
 
     public boolean isHideCloseButton() {
         return hideCloseButton;
@@ -89,6 +91,11 @@ public class MerryPhotoView extends View {
 
     public MerryPhotoView setHideCloseButton(boolean hideCloseButton) {
         this.hideCloseButton = hideCloseButton;
+        return this;
+    }
+
+    public MerryPhotoView setHandleShareDefault(boolean handleShareDefault) {
+        this.handleShareDefault = handleShareDefault;
         return this;
     }
 
@@ -119,7 +126,19 @@ public class MerryPhotoView extends View {
         // builder.setCustomImageRequestBuilder(getLocalImage());
         builder.setCustomDraweeHierarchyBuilder(progressBarDrawableBuilder());
         overlayView = new MerryPhotoOverlay(context);
+        overlayView.setOnShareClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WritableMap map = Arguments.createMap();
+                map.putInt("index", currentIndex);
+                final Context context = getContext();
+                if (context instanceof ReactContext) {
+                    ((ReactContext) context).getJSModule(RCTEventEmitter.class).receiveEvent(getId(), "onSharePress", map);
+                }
+            }
+        });
         builder.setOverlayView(overlayView);
+        currentIndex = initial;
 
         ImageViewer imageViewer = builder.build();
         overlayView.setImageViewer(imageViewer);
@@ -186,7 +205,7 @@ public class MerryPhotoView extends View {
                 map.putInt("index", position);
 
                 onNavigateToPhoto(map);
-
+                currentIndex = position;
             }
         };
     }

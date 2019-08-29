@@ -5,13 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.merryjs.PhotoViewer.R;
 import com.stfalcon.frescoimageviewer.ImageViewer;
 
 
@@ -24,10 +22,12 @@ public class MerryPhotoOverlay extends RelativeLayout {
     private TextView tvTitlePager;
 
     private TextView tvDescription;
-    private TextView tvShare;
-    private TextView tvClose;
+    private ImageButton tvShare;
+    private ImageButton tvClose;
     private ImageViewer imageViewer;
     private String sharingText;
+    private OnClickListener onShareClickListener;
+
     public void setImageViewer(ImageViewer imageViewer){
         this.imageViewer = imageViewer;
     }
@@ -69,7 +69,7 @@ public class MerryPhotoOverlay extends RelativeLayout {
     }
 
     public void setShareText(String text) {
-        tvShare.setText(text);
+//        tvShare.setText(text);
     }
 
     public void setShareContext(String text) {
@@ -77,7 +77,7 @@ public class MerryPhotoOverlay extends RelativeLayout {
     }
 
     public void setShareTextColor(String color) {
-        tvShare.setTextColor(Color.parseColor(color));
+//        tvShare.setTextColor(Color.parseColor(color));
     }
 
     public void setTitleTextColor(int color) {
@@ -103,20 +103,20 @@ public class MerryPhotoOverlay extends RelativeLayout {
         tvTitle = (TextView) view.findViewById(R.id.tvTitle);
         tvDescription = (TextView) view.findViewById(R.id.tvDescription);
 
-        tvShare = (TextView) view.findViewById(R.id.btnShare);
-        tvShare.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendShareIntent();
-            }
-        });
-        tvClose = (TextView) view.findViewById(R.id.btnClose);
-        tvClose.setOnClickListener(new OnClickListener() {
+        tvShare = (ImageButton) view.findViewById(R.id.btnShare);
+        tvShare.setOnClickListener(this.onShareClickListener);
 
+        tvClose = (ImageButton) view.findViewById(R.id.btnClose);
+        tvClose.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                imageViewer.onDismiss();
             }
         });
+    }
+
+    public void setOnShareClickListener(OnClickListener onShareClickListener) {
+        this.onShareClickListener = onShareClickListener;
+        tvShare.setOnClickListener(this.onShareClickListener);
     }
 }
