@@ -1,5 +1,6 @@
 //  Created by react-native-create-bridge
 #import "MerryPhotoView.h"
+#import <React/RCTImageLoader.h>
 #import <Foundation/Foundation.h>
 #import <SDWebImage/SDWebImageManager.h>
 #if __has_include("RCTUtils.h")
@@ -172,7 +173,7 @@
     MerryPhotoData* d = self.reactPhotos[current];
 
     if (RCTIsLocalAssetURL(d.source.request.URL) || ![self isWebURL: d.source.request.URL]) {
-        [_bridge.imageLoader loadImageWithURLRequest:d.source.request
+        [[_bridge moduleForClass:[RCTImageLoader class]] loadImageWithURLRequest:d.source.request
             size:d.source.size
             scale:d.source.scale
             clipped:YES
