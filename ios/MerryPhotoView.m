@@ -90,7 +90,7 @@
 - (void)showViewer:(NSArray*)data
 {
 
-    if (!data) {
+    if (!data || self.nytPhotosViewController != nil) {
         return;
     }
 
